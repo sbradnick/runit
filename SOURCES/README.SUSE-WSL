@@ -1,0 +1,7 @@
+- /etc/service holds unactivated <service_name>/run files.
+- /usr/sbin/runsvdir-start has "/service" path hardcoded in.
+- use a symlink from /etc/service/<service_name> to /service
+  so that runsvdir-start picks it up; that way you can have
+  multiple inactive items ready when necessary.
+- /usr/sbin/runsvdir-start can be left in a tmux session at
+  startup for initialization.

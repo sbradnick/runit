@@ -1,0 +1,109 @@
+#
+# spec file for package runit
+#
+# Copyright (c) 2021 SUSE LLC
+#
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
+
+# Please submit bugfixes or comments via https://bugs.opensuse.org/
+#
+
+Name:           runit
+Version:        2.1.2
+Release:        0
+Summary:        A UNIX init scheme with service supervision.
+License:        BSD-2-Clause
+URL:            http://smarden.org/runit
+Source:         http://smarden.org/runit/runit-%{version}.tar.gz
+# Source1:        runit.init
+# Source2:        README.SuSE
+# Source3:        runit-rpmlintrc
+Patch0:         runit-2.0.0_etc_service.patch
+Patch1:         compile_warnings.patch
+BuildRequires:  glibc-devel-static
+%define _sbindir /usr/sbin
+%define _bindir /usr/bin
+%define pkg_name runit
+# BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+
+%prep
+%setup -n admin/%{pkg_name}-%{version}
+%patch0
+%patch1 -p2
+sed -i -e 's|-O2|%{optflags}|g' src/conf-cc
+sed -i -e 's| -s||g' src/conf-ld
+%{__cp} %{S:2} .
+
+%build
+sh package/compile
+
+%install
+for i in $(< package/commands) ; do
+    %{__install} -D -m 0755 command/$i %{buildroot}%{_sbindir}/$i
+done
+%{__install} -d -m 0755 %{buildroot}%{_bindir}
+mv %{buildroot}%{_sbindir}/runsv* %{buildroot}%{_bindir}/
+mv %{buildroot}%{_sbindir}/sv* %{buildroot}%{_bindir}/
+for i in man/*8 ; do
+    %{__install} -D -m 0644 $i %{buildroot}%{_mandir}/man8/${i##man/}
+done
+%{__install} -d -m 0755 %{buildroot}{/etc/service,/etc/sv}
+%{__install} -D -m 0750 etc/2 %{buildroot}%{_sbindir}/runsvdir-start
+#
+##	I'm not sure if this is necessary in WSL.
+#
+# # ----- ???
+# mkdir %{buildroot}%{_sysconfdir}/init.d
+# # ----- ???
+# %{__install} -D -m 0755 %{S:1} %{buildroot}%{_sysconfdir}/init.d/%{pkg_name}
+# %{__ln_s} -f %{_sysconfdir}/init.d/%{pkg_name} %{buildroot}%{_sbindir}/rc%{pkg_name}
+# # ----- Is this to search /etc for executable files?
+# #find etc -type f -exec chmod ugo-x {} \;
+# # -----
+
+%clean
+%{__rm} -rf %{buildroot}
+
+# %post
+# %fillup_and_insserv %{pkg_name}
+# OLDDIR="/var/service"
+# NEWDIR="/etc/service"
+# set -x
+# if [ -d "$OLDDIR" ] ; then
+#   for service in $(ls $OLDDIR/ 2>/dev/null) ; do
+#     if [ -e "$NEWDIR/$service" ] ; then
+#       echo "Can not migrate '$OLDDIR/$service' to '$NEWDIR/$service'. Target directory already exists" >&2
+#     else
+#       mv -v $OLDDIR/$service $NEWDIR
+#     fi
+#   done
+#   rmdir $OLDDIR 2> /dev/null ||: # this can fail if we couldnt migrate all directories
+# fi
+
+# %preun
+# %stop_on_removal %{pkg_name}
+
+# %postun
+# %restart_on_update %{pkg_name}
+# %{insserv_cleanup}
+
+%files
+%defattr(-,root,root,-)
+%{_sbindir}/*
+%{_bindir}/*
+%{_mandir}/man8/*.8*
+# %doc doc/* etc/ README.SuSE
+%doc package/CHANGES package/COPYING package/README package/THANKS package/TODO
+%dir %{_sysconfdir}/sv
+%dir %{_sysconfdir}/service
+# %{_sysconfdir}/init.d/%{pkg_name}
+# %{_sbindir}/rc%{pkg_name}
+
+%changelog

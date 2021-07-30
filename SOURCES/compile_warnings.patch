@@ -1,0 +1,68 @@
+diff -ur admin.orig/runit-2.1.2/src/chkshsgr.c admin/runit-2.1.2/src/chkshsgr.c
+--- admin.orig/runit-2.1.2/src/chkshsgr.c	2017-06-22 14:59:36.613421857 +0200
++++ admin/runit-2.1.2/src/chkshsgr.c	2017-06-22 15:00:40.005749203 +0200
+@@ -1,12 +1,16 @@
+ /* Public domain. */
+ 
++#include <sys/types.h>
+ #include <unistd.h>
++#include <grp.h>
+ 
+ int main()
+ {
+-  short x[4];
++  gid_t x[4];
+ 
+   x[0] = x[1] = 0;
+-  if (getgroups(1,x) == 0) if (setgroups(1,x) == -1) _exit(1);
++  if (getgroups(1,x) == 0) 
++    if (setgroups(1,x) == -1)
++      _exit(1);
+   _exit(0);
+ }
+diff -ur admin.orig/runit-2.1.2/src/chpst.c admin/runit-2.1.2/src/chpst.c
+--- admin.orig/runit-2.1.2/src/chpst.c	2017-06-22 14:59:36.613421857 +0200
++++ admin/runit-2.1.2/src/chpst.c	2017-06-22 15:02:03.918192865 +0200
+@@ -2,6 +2,9 @@
+ #include <time.h>
+ #include <sys/time.h>
+ #include <sys/resource.h>
++
++#include <grp.h>
++
+ #include <unistd.h>
+ #include "sgetopt.h"
+ #include "error.h"
+@@ -308,7 +311,8 @@
+     case 'n':
+       switch (*optarg) {
+         case '-':
+-          if (optarg[scan_ulong(++optarg, &ul)]) usage(); nicelvl =ul;
++          ++optarg;
++          if (optarg[scan_ulong(optarg, &ul)]) usage(); nicelvl =ul;
+           nicelvl *=-1;
+           break;
+         case '+': ++optarg;
+diff -ur admin.orig/runit-2.1.2/src/prot.c admin/runit-2.1.2/src/prot.c
+--- admin.orig/runit-2.1.2/src/prot.c	2017-06-22 14:59:36.613421857 +0200
++++ admin/runit-2.1.2/src/prot.c	2017-06-22 15:02:34.618358663 +0200
+@@ -1,4 +1,7 @@
+ /* Public domain. */
++#include <sys/types.h>
++#include <unistd.h>
++#include <grp.h>
+ 
+ #include "hasshsgr.h"
+ #include "prot.h"
+diff -ur admin.orig/runit-2.1.2/src/seek_set.c admin/runit-2.1.2/src/seek_set.c
+--- admin.orig/runit-2.1.2/src/seek_set.c	2017-06-22 14:59:36.613421857 +0200
++++ admin/runit-2.1.2/src/seek_set.c	2017-06-22 15:02:51.626450569 +0200
+@@ -1,6 +1,7 @@
+ /* Public domain. */
+ 
+ #include <sys/types.h>
++#include <unistd.h>
+ #include "seek.h"
+ 
+ #define SET 0 /* sigh */
+
