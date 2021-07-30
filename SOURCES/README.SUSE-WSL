@@ -1,11 +1,12 @@
-- /etc/service holds unactivated <service_name>/run files.
+- /etc/service holds unactivated <service_name>/run files [1].
 - /usr/sbin/runsvdir-start has "/service" path hardcoded in.
 - use a symlink from /etc/service/<service_name> to /service
   so that runsvdir-start picks it up; that way you can have
   multiple inactive items ready when necessary.
-- /usr/sbin/runsvdir-start can be left in a tmux session at
-  startup for initialization.
+- /usr/sbin/runsvdir-start can be left in a tmux session [2]
+  at startup for initialization.
 
+[1]
 Example sshd/run:
 
   #!/usr/bin/sh
@@ -20,3 +21,13 @@ Example sshd/log/run:
 
 NOTE: standard sshd setup requirements still apply.
 - # sshd-gen-keys-start
+
+[2]
+Example startup script:
+
+  #!/usr/bin/bash
+  if ! [[ -d /run/tmux ]];
+  then
+    sudo /usr/bin/systemd-tmpfiles --create
+  fi
+  tmux new -s runit -d 'echo "-- running /usr/sbin/runsvdir-start --" && sudo /usr/sbin/runsvdir-start'
