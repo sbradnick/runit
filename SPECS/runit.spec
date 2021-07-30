@@ -77,6 +77,6 @@ done
 %dir %{_sysconfdir}/service
 
 %changelog
-* Fri Jul 30 2021:
-  - Initial version.
-  - Added 'README.txt' w/ usage info.
+* Fri Jul 30 2021 Scott Bradnick <sbradnick@suse.com>
+- Initial version.
+- Added 'README.txt' w/ usage info.

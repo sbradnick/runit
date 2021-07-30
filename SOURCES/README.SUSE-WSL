@@ -5,3 +5,18 @@
   multiple inactive items ready when necessary.
 - /usr/sbin/runsvdir-start can be left in a tmux session at
   startup for initialization.
+
+Example sshd/run:
+
+  #!/usr/bin/sh
+  exec 2>&1
+  #/usr/bin/systemd-tmpfiles --create
+  exec /usr/sbin/sshd -D -e
+
+Example sshd/log/run:
+
+  #!/usr/bin/sh
+  exec chpst -uroot:root svlogd -tt ./main
+
+NOTE: standard sshd setup requirements still apply.
+- # sshd-gen-keys-start
