@@ -1,5 +1,4 @@
 [personal] OBS version: https://build.opensuse.org/package/show/home:sbradnick/runit
-20210924: this is a test.
 
 ```
 #
