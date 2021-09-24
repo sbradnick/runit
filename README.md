@@ -1,3 +1,5 @@
+[personal] OBS version: https://build.opensuse.org/package/show/home:sbradnick/runit
+
 ```
 #
 # [20210730] Initial attempt at runit.
